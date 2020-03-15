@@ -56,11 +56,19 @@ defmodule GlobalId do
   def handle_call(:get_id, _from, %{node_id: node, counter: counter, last_ts: last_ts} = state) do
     ts = timestamp()
 
-    counter =
-      if ts > last_ts do
-        0
-      else
-        counter + 1
+    {ts, counter} =
+      cond do
+        # go to next ts if counter has overflown
+        counter >= 2047 ->
+          {ts + 1, 0}
+
+        # new ts resets counter
+        ts > last_ts ->
+          {ts, 0}
+
+        # calls within the same ts increment counter
+        true ->
+          {ts, counter + 1}
       end
 
     id = format_id(ts, node, counter)
