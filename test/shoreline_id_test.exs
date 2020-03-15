@@ -8,6 +8,13 @@ defmodule GlobalIdTest do
     assert GlobalId.get_id() == 6_645_053_045_335_916_545
   end
 
+  test "BUG: calling get_id too many times in one millisecond will overflow counter and id will duplicate" do
+    {:ok, _pid} = GlobalId.start_link([])
+    id = GlobalId.get_id()
+    for i <- 1..2047, do: GlobalId.get_id()
+    assert GlobalId.get_id() !== id
+  end
+
   test "test id 0" do
     assert GlobalId.format_id(0, 0, 0) == 0
   end
