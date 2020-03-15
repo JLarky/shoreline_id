@@ -39,7 +39,11 @@ defmodule GlobalId do
   end
 
   def start_link([]) do
-    GenServer.start_link(__MODULE__, %{node_id: node_id(), counter: 0}, name: __MODULE__)
+    GenServer.start_link(
+      __MODULE__,
+      %{node_id: node_id(), counter: 0, last_ts: 0},
+      name: __MODULE__
+    )
   end
 
   @impl true
@@ -49,10 +53,18 @@ defmodule GlobalId do
   end
 
   @impl true
-  def handle_call(:get_id, _from, %{node_id: node, counter: counter} = state) do
+  def handle_call(:get_id, _from, %{node_id: node, counter: counter, last_ts: last_ts} = state) do
     ts = timestamp()
+
+    counter =
+      if ts > last_ts do
+        0
+      else
+        counter + 1
+      end
+
     id = format_id(ts, node, counter)
-    {:reply, id, state}
+    {:reply, id, %{state | counter: counter, last_ts: ts}}
   end
 
   #

@@ -2,9 +2,10 @@ defmodule GlobalIdTest do
   use ExUnit.Case
   doctest GlobalId
 
-  test "gets static id" do
+  test "calling multiple times increases counter" do
     {:ok, _pid} = GlobalId.start_link([])
     assert GlobalId.get_id() == 6_645_053_045_335_916_544
+    assert GlobalId.get_id() == 6_645_053_045_335_916_545
   end
 
   test "test id 0" do
