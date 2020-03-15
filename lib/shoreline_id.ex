@@ -1,4 +1,6 @@
 defmodule GlobalId do
+  use GenServer
+
   @moduledoc """
   GlobalId module contains an implementation of a guaranteed globally unique id system.
   """
@@ -9,9 +11,7 @@ defmodule GlobalId do
   """
   @spec get_id() :: non_neg_integer
   def get_id() do
-    ts = timestamp()
-    node = node_id()
-    format_id(ts, node, 0)
+    GenServer.call(__MODULE__, :get_id)
   end
 
   @spec format_id(integer, integer, integer) :: non_neg_integer
@@ -36,6 +36,23 @@ defmodule GlobalId do
 
     <<id::64>> = <<ts::42, node::11, counter::11>>
     id
+  end
+
+  def start_link([]) do
+    GenServer.start_link(__MODULE__, %{node_id: node_id(), counter: 0}, name: __MODULE__)
+  end
+
+  @impl true
+  @spec init(map()) :: {:ok, map()}
+  def init(args) do
+    {:ok, args}
+  end
+
+  @impl true
+  def handle_call(:get_id, _from, %{node_id: node, counter: counter} = state) do
+    ts = timestamp()
+    id = format_id(ts, node, counter)
+    {:reply, id, state}
   end
 
   #

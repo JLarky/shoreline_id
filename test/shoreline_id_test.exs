@@ -3,6 +3,7 @@ defmodule GlobalIdTest do
   doctest GlobalId
 
   test "gets static id" do
+    {:ok, _pid} = GlobalId.start_link([])
     assert GlobalId.get_id() == 6_645_053_045_335_916_544
   end
 
