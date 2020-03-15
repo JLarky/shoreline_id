@@ -7,9 +7,9 @@ defmodule GlobalId do
   Please implement the following function.
   64 bit non negative integer output
   """
-  @spec get_id(???) :: non_neg_integer
-  def get_id(???) do
-
+  @spec get_id() :: non_neg_integer
+  def get_id() do
+    node_id() + timestamp()
   end
 
   #
@@ -23,11 +23,15 @@ defmodule GlobalId do
   It is guaranteed to be globally unique.
   """
   @spec node_id() :: non_neg_integer
-  def node_id
+  def node_id do
+    1024
+  end
 
   @doc """
   Returns timestamp since the epoch in milliseconds.
   """
   @spec timestamp() :: non_neg_integer
-  def timestamp
+  def timestamp do
+    1
+  end
 end
