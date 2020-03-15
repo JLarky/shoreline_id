@@ -15,6 +15,16 @@ defmodule GlobalIdTest do
     assert GlobalId.get_id() !== id
   end
 
+  test "BUG: counter overflow is not safe on GenServer restart" do
+    {:ok, _pid} = GlobalId.start_link([])
+    id = GlobalId.get_id()
+    for i <- 1..2047, do: GlobalId.get_id()
+    overflow_id = GlobalId.get_id()
+    GenServer.stop(GlobalId)
+    {:ok, _pid} = GlobalId.start_link([])
+    assert GlobalId.get_id() !== id
+  end
+
   test "test id 0" do
     assert GlobalId.format_id(0, 0, 0) == 0
   end
