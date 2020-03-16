@@ -12,9 +12,9 @@ defmodule PersistantStorage do
   end
 
   @doc """
-  Reads value from disk, returning `nil` if no value was stored
+  Reads value from disk, returning `0` if no value was stored
   """
-  @spec load_timestamp :: non_neg_integer | nil
+  @spec load_timestamp :: non_neg_integer
   def load_timestamp() do
     GenServer.call(__MODULE__, :load)
   end
@@ -42,7 +42,7 @@ defmodule PersistantStorage do
           x
 
         :eof ->
-          nil
+          0
       end
 
     {:reply, ts, state}
