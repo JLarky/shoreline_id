@@ -38,6 +38,13 @@ defmodule GlobalId do
     id
   end
 
+  @doc false
+  def inspect_id(id) do
+    <<ts::42, node::11, counter::11>> = <<id::64>>
+
+    {ts, node, counter}
+  end
+
   def start_link() do
     GenServer.start_link(
       __MODULE__,
