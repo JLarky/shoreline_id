@@ -56,21 +56,33 @@ defmodule GlobalId do
   @impl true
   @spec init(map()) :: {:ok, map()}
   def init(args) do
-    {:ok, args}
+    case PersistantStorage.start_link() do
+      {:ok, _} -> :ok
+      {:error, {:already_started, _}} -> :ok
+    end
+
+    ts = PersistantStorage.load_timestamp()
+    {:ok, %{args | last_ts: ts}}
   end
 
   @impl true
   def handle_call(:get_id, _from, %{node_id: node, counter: counter, last_ts: last_ts} = state) do
+    # `last_ts` could be in future compared to `ts` for two main reasons:
+    # 1. clock could be out of sync, for example after restart it shows wrong time compared to last run
+    # 2. we are getting too many requests per second so our `counter` is overflown and we had to increment time instead
     ts = max(timestamp(), last_ts)
 
+    # we are saving ts to disk every time `ts` is advancing
     {ts, counter} =
       cond do
         # go to next ts if counter has overflown
         counter >= 2047 ->
+          PersistantStorage.save_timestamp(ts)
           {ts + 1, 0}
 
         # new ts resets counter
         ts > last_ts ->
+          PersistantStorage.save_timestamp(ts)
           {ts, 0}
 
         # calls within the same ts increment counter

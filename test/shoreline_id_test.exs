@@ -2,6 +2,12 @@ defmodule GlobalIdTest do
   use ExUnit.Case
   doctest GlobalId
 
+  setup do
+    PersistantStorage.start_link()
+    PersistantStorage.save_timestamp(0)
+    :ok
+  end
+
   test "calling multiple times increases counter" do
     {:ok, _pid} = GlobalId.start_link()
     assert GlobalId.get_id() == 6_645_053_045_335_916_544
@@ -22,7 +28,7 @@ defmodule GlobalIdTest do
     assert {1_584_304_105_124, 1024, 2} === GlobalId.inspect_id(overflow_id)
   end
 
-  test "BUG: counter overflow is not safe on GenServer restart" do
+  test "that counter overflow is safe on GenServer restart" do
     {:ok, _pid} = GlobalId.start_link()
     id = GlobalId.get_id()
     for _ <- 1..2047, do: GlobalId.get_id()
