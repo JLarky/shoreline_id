@@ -1,3 +1,6 @@
+# stores last timestamp between server restarts
+last_timestamp.dat
+
 # The directory Mix will write compiled artifacts to.
 /_build/
 
