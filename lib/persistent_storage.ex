@@ -60,7 +60,7 @@ defmodule PersistantStorage do
   def handle_call({:save, ts}, _from, %{fd: fd} = state) do
     :ok = :file.pwrite(fd, 0, <<ts::64>>)
     # see notes about `:file.sync` in `h GlobalId.timestamp`
-    :ok = :file.sync(fd)
+    # :ok = :file.sync(fd)
     {:reply, :ok, state}
   end
 end
