@@ -1,6 +1,6 @@
 defmodule PersistantStorageTest do
   use ExUnit.Case
-  doctest GlobalId
+  doctest PersistantStorage
 
   test "that server can read when no last_timestamp.dat is present at the start" do
     _ = File.rm("last_timestamp.dat")
