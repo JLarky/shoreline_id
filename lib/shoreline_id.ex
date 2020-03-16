@@ -38,7 +38,7 @@ defmodule GlobalId do
     id
   end
 
-  def start_link([]) do
+  def start_link() do
     GenServer.start_link(
       __MODULE__,
       %{node_id: node_id(), counter: 0, last_ts: 0},
