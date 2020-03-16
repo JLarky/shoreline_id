@@ -62,7 +62,7 @@ defmodule GlobalId do
     end
 
     ts = PersistantStorage.load_timestamp()
-    {:ok, %{args | last_ts: ts}}
+    {:ok, %{args | last_ts: ts + 1}}
   end
 
   @impl true
