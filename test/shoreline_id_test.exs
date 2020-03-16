@@ -8,7 +8,7 @@ defmodule GlobalIdTest do
     assert GlobalId.get_id() == 6_645_053_045_335_916_545
   end
 
-  test "BUG: calling get_id too many times in one millisecond will overflow counter so ts will increase instead" do
+  test "calling get_id too many times in one millisecond will overflow counter so ts will increase instead" do
     {:ok, _pid} = GlobalId.start_link()
     id = GlobalId.get_id()
     for _ <- 1..2047, do: GlobalId.get_id()
@@ -18,6 +18,8 @@ defmodule GlobalIdTest do
     assert {1_584_304_105_124, 1024, 0} === GlobalId.inspect_id(overflow_id)
     overflow_id = GlobalId.get_id()
     assert {1_584_304_105_124, 1024, 1} === GlobalId.inspect_id(overflow_id)
+    overflow_id = GlobalId.get_id()
+    assert {1_584_304_105_124, 1024, 2} === GlobalId.inspect_id(overflow_id)
   end
 
   test "BUG: counter overflow is not safe on GenServer restart" do

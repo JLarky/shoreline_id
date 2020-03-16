@@ -61,7 +61,7 @@ defmodule GlobalId do
 
   @impl true
   def handle_call(:get_id, _from, %{node_id: node, counter: counter, last_ts: last_ts} = state) do
-    ts = timestamp()
+    ts = max(timestamp(), last_ts)
 
     {ts, counter} =
       cond do
