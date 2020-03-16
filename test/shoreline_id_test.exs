@@ -38,6 +38,24 @@ defmodule GlobalIdTest do
     assert GlobalId.get_id() !== id
   end
 
+  test "that on GenServer restart proper last_ts is stored" do
+    {:ok, _pid} = GlobalId.start_link()
+    id = GlobalId.get_id()
+    for _ <- 1..2047, do: GlobalId.get_id()
+    assert {1_584_304_105_123, 1024, 0} === GlobalId.inspect_id(id)
+    overflow_id = GlobalId.get_id()
+    assert {1_584_304_105_124, 1024, 0} === GlobalId.inspect_id(overflow_id)
+    overflow_id2 = GlobalId.get_id()
+    assert {1_584_304_105_124, 1024, 1} === GlobalId.inspect_id(overflow_id2)
+    GenServer.stop(GlobalId)
+    {:ok, _pid} = GlobalId.start_link()
+    new_id = GlobalId.get_id()
+    assert new_id !== id
+    assert new_id !== overflow_id
+    assert new_id !== overflow_id2
+    assert {1_584_304_105_125, 1024, 1} === GlobalId.inspect_id(new_id)
+  end
+
   test "test id 0" do
     assert GlobalId.format_id(0, 0, 0) == 0
   end
