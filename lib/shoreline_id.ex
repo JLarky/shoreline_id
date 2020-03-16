@@ -77,7 +77,7 @@ defmodule GlobalId do
       cond do
         # go to next ts if counter has overflown
         counter >= 2047 ->
-          PersistantStorage.save_timestamp(ts)
+          PersistantStorage.save_timestamp(ts + 1)
           {ts + 1, 0}
 
         # new ts resets counter
