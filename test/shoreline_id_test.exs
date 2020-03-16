@@ -63,4 +63,10 @@ defmodule GlobalIdTest do
   test "test max id" do
     assert GlobalId.format_id(4_398_046_511_103, 2047, 2047) + 1 == :math.pow(2, 64)
   end
+
+  test "generate a lot of ids for 1 second" do
+    {:ok, _} = GlobalId.start_link()
+    ids = for _ <- 1..250_000, do: GlobalId.get_id()
+    assert length(Enum.uniq(ids)) === 250_000
+  end
 end

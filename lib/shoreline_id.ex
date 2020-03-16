@@ -3,17 +3,58 @@ defmodule GlobalId do
 
   @moduledoc """
   GlobalId module contains an implementation of a guaranteed globally unique id system.
+
+  ## Example
+
+      iex> {:ok, _} = GlobalId.start_link()
+      iex> GlobalId.get_id()
+      6645053045335916544
+      iex> GlobalId.get_id()
+      6645053045335916545
+
+  Generating 10,000 unique ids
+
+      iex> {:ok, _} = GlobalId.start_link()
+      iex> ids = for _ <- 1..10_000, do: GlobalId.get_id()
+      iex> length(Enum.uniq(ids))
+      10_000
   """
 
   @doc """
-  Please implement the following function.
-  64 bit non negative integer output
+  `get_id` doesn't take any parameters and instead it's state is stored in GenServer. Returns globally unique 64 bit non negative integer.
   """
   @spec get_id() :: non_neg_integer
   def get_id() do
     GenServer.call(__MODULE__, :get_id)
   end
 
+  @doc """
+  `format_id` is heart of `get_id` and formats unique number. Middle 11 bits are unique for each node,
+  so given that node_id is not reused for different machine no two ids from different nodes is going
+  to be the same.
+
+  To ensure that particular node doesn't generate the same id twice we need to perform three tasks,
+  main is to use epoch time as first 42 bits of our integer. To combat issue of generating multiple
+  ids during the same epoch time, we keep track of counter and increment it for each call. Third is
+  to store epoch time in persistent storage, to ensure that we are not re-using any timestamps on
+  the same node.
+
+  Our solution should work for case when 100,000 ids need to be generated per second, since we can
+  only use 11 bits for counter that might cause counter to overflow over 2047 at which point we can
+  simply sleep for 1ms or advance time for 1ms manually. In case of peek load that might mean that
+  timestamp portion of id is going to have time that is bigger than system current time. But
+  100,000 requests require only 49 milliseconds to catch up to real timestamp and we have budget
+  of 1000 milliseconds, and sutainable load of 1000 requests per second should never overflow the
+  counter of 2047.
+
+  Order of bits is selected so that sorting ids generated from one machine will be equivalent to
+  sorting by time, and two ids generated on one node right after each other would most likelly be
+  different by just 1, which is easier to spot visually. Alternativelly one can choose order
+  (ts, counter, node) for which sorting by time would most probably be true even between nodes,
+  but I don't believe that it's always feasable to have whole cluster's time be so accurate, as
+  NTP accuracy is usually measured in milliseconds, and even then counter value will depend on
+  how busy particular node is.
+  """
   @spec format_id(integer, integer, integer) :: non_neg_integer
   def format_id(ts, node, counter) do
     # if our code is going to run no later than May 15, 2109 we can store timestamp as 42 bit unsigned integer
@@ -62,6 +103,8 @@ defmodule GlobalId do
     end
 
     ts = PersistantStorage.load_timestamp()
+    # we might perform check here that timestamp is reasonably close to current time, to notify
+    # about possible issues with system time
     {:ok, %{args | last_ts: ts + 1}}
   end
 

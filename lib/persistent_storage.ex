@@ -5,6 +5,14 @@ defmodule PersistantStorage do
 
   @moduledoc """
   PersistantStorage module stores timestamp on disk so we can read it later
+
+  ## Examples
+
+      iex> {:ok, _} = PersistantStorage.start_link()
+      iex> PersistantStorage.save_timestamp(123)
+      :ok
+      iex> PersistantStorage.load_timestamp()
+      123
   """
 
   def start_link() do
