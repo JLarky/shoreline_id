@@ -169,8 +169,8 @@ defmodule GlobalId do
   """
   @spec timestamp() :: non_neg_integer
   def timestamp do
-    # :erlang.system_time(:millisecond)
-    1_584_304_105_123
+    :erlang.system_time(:millisecond)
+    # 1_584_304_105_123
   end
 
   defp load_timestamp do
