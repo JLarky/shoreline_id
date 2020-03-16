@@ -1,21 +1,6 @@
 # GlobalId
 
-**TODO: Add description**
+See [problem](https://app.trinethire.com/companies/22646-shoreline-software-inc/jobs/16711-software-engineer-distributed-systems) for description, or [backup](https://jlarky.github.io/shoreline_id/problem/problem.html).
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `shoreline_id` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:shoreline_id, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/shoreline_id](https://hexdocs.pm/shoreline_id).
-
+    $ iex -S mix
+    iex(1)> h GlobalId
