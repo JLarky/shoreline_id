@@ -64,9 +64,9 @@ defmodule GlobalIdTest do
     assert GlobalId.format_id(4_398_046_511_103, 1023, 4095) + 1 == :math.pow(2, 64)
   end
 
-  # test "generate a lot of ids for 1 second (disable it if running with real implementation of GlobalId.timestamp)" do
-  #   {:ok, _} = GlobalId.start_link()
-  #   ids = for _ <- 1..250_000, do: GlobalId.get_id()
-  #   assert length(Enum.uniq(ids)) === 250_000
-  # end
+  test "generate a lot of ids for 1 second (disable it if running with real implementation of GlobalId.timestamp)" do
+    {:ok, _} = GlobalId.start_link()
+    ids = for _ <- 1..300_000, do: GlobalId.get_id()
+    assert length(Enum.uniq(ids)) === 300_000
+  end
 end
