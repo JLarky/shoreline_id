@@ -101,7 +101,7 @@ defmodule GlobalId do
       {:error, {:already_started, _}} -> :ok
     end
 
-    ts = PersistantStorage.load_timestamp()
+    ts = load_timestamp()
     # we might perform check here that timestamp is reasonably close to current time, to notify
     # about possible issues with system time
     {:ok, %{args | last_ts: ts + 1}}
@@ -119,12 +119,12 @@ defmodule GlobalId do
       cond do
         # go to next ts if counter has overflown
         counter >= 4095 ->
-          PersistantStorage.save_timestamp(ts + 1)
+          save_timestamp(ts + 1)
           {ts + 1, 0}
 
         # new ts resets counter
         ts > last_ts ->
-          PersistantStorage.save_timestamp(ts)
+          save_timestamp(ts)
           {ts, 0}
 
         # calls within the same ts increment counter
@@ -170,5 +170,13 @@ defmodule GlobalId do
   def timestamp do
     # :erlang.system_time(:millisecond)
     1_584_304_105_123
+  end
+
+  defp load_timestamp do
+    PersistantStorage.load_timestamp()
+  end
+
+  defp save_timestamp(ts) do
+    PersistantStorage.save_timestamp(ts)
   end
 end
