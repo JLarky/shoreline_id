@@ -10,8 +10,8 @@ defmodule GlobalIdTest do
 
   test "calling multiple times increases counter" do
     {:ok, _pid} = GlobalId.start_link()
-    assert GlobalId.get_id() == 6_645_053_045_335_914_496
-    assert GlobalId.get_id() == 6_645_053_045_335_914_497
+    assert GlobalId.get_id() == 6_645_053_045_338_009_600
+    assert GlobalId.get_id() == 6_645_053_045_338_009_601
   end
 
   test "calling get_id too many times in one millisecond will overflow counter so ts will increase instead" do
@@ -61,7 +61,7 @@ defmodule GlobalIdTest do
   end
 
   test "test max id" do
-    assert GlobalId.format_id(4_398_046_511_103, 2047, 2047) + 1 == :math.pow(2, 64)
+    assert GlobalId.format_id(4_398_046_511_103, 1023, 4095) + 1 == :math.pow(2, 64)
   end
 
   # test "generate a lot of ids for 1 second (disable it if running with real implementation of GlobalId.timestamp)" do

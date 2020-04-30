@@ -8,9 +8,9 @@ defmodule GlobalId do
 
       iex> {:ok, _} = GlobalId.start_link()
       iex> GlobalId.get_id()
-      6645053045335914496
+      6645053045338009600
       iex> GlobalId.get_id()
-      6645053045335914497
+      6645053045338009601
 
   Generating 10,000 unique ids
 
@@ -29,7 +29,7 @@ defmodule GlobalId do
   end
 
   @doc """
-  `format_id` is heart of `get_id` and formats unique number. Middle 11 bits are unique for each node,
+  `format_id` is heart of `get_id` and formats unique number. Middle 10 bits are unique for each node,
   so given that node_id is not reused for different machine no two ids from different nodes is going
   to be the same.
 
@@ -40,12 +40,12 @@ defmodule GlobalId do
   the same node.
 
   Our solution should work for case when 100,000 ids need to be generated per second, since we can
-  only use 11 bits for counter that might cause counter to overflow over 2047 at which point we can
+  only use 12 bits for counter that might cause counter to overflow over 4095 at which point we can
   simply sleep for 1ms or advance time for 1ms manually. In case of peek load that might mean that
   timestamp portion of id is going to have time that is bigger than system current time. But
-  100,000 requests require only 49 milliseconds to catch up to real timestamp and we have budget
+  100,000 requests require only 24 milliseconds to catch up to real timestamp and we have budget
   of 1000 milliseconds, and sutainable load of 1000 requests per second should never overflow the
-  counter of 2047.
+  counter of 4095.
 
   Order of bits is selected so that sorting ids generated from one machine will be equivalent to
   sorting by time, and two ids generated on one node right after each other would most likelly be
@@ -63,26 +63,25 @@ defmodule GlobalId do
     #   throw(:too_late)
     # end
 
-    # unfotrunatelly since node_id can be both 0 and 1024 at the same time we need at least 11 bits
-    # if node > 2047 do
-    #   # <<2047::11>>
+    # we need 10 bits to store node_id from 0 to 1023
+    # if node > 1023 do
+    #   # <<1023::10>>
     #   throw(:too_many_nodes)
     # end
 
-    # we only have 11 bits left for counter
-    # if counter > 2047 do
-    #   # <<2047::11>>
+    # we only have 12 bits left for counter
+    # if counter > 4095 do
+    #   # <<4095::12>>
     #   throw(:too_many_counts)
     # end
 
-    <<id::64>> = <<ts::42, node::11, counter::11>>
+    <<id::64>> = <<ts::42, node::10, counter::12>>
     id
   end
 
   @doc false
   def inspect_id(id) do
-    <<ts::42, node::11, counter::11>> = <<id::64>>
-
+    <<ts::42, node::10, counter::12>> = <<id::64>>
     {ts, node, counter}
   end
 
@@ -144,7 +143,7 @@ defmodule GlobalId do
 
   @doc """
   Returns your node id as an integer.
-  It will be greater than or equal to 0 and less than or equal to 1024.
+  It will be greater than or equal to 0 and less than 1024.
   It is guaranteed to be globally unique.
   """
   @spec node_id() :: non_neg_integer
