@@ -154,17 +154,18 @@ defmodule GlobalId do
   @doc """
   Returns timestamp since the epoch in milliseconds.
 
-  You can either do `:ok = :file.sync(fd)` or `:erlang.system_time(:millisecond)` to generate a lot
-  of ids fast. We need `file:sync` so that our tests will not mess up with each other, but in real
-  system crash that will cause file write operation to fail is not going to be fixed in short enough
-  time so that lost write data is going to make a difference. So we can skip `sync` all together.
+  For this example I didn't want to mock current time and decided to have timestamp hard coded, but
+  running with `:erlang.system_time(:millisecond)` instead of hard coded value was causing too many calls
+  to `save_timestamp`, and since it was performing `file:sync` (without sync you would see races when
+  running unit tests) it would cause significant slow down. Storing timestamp less often (using `step`)
+  allows us to preserve current architecture but will only cause `file:sync` no more than once per `step`
+  milliseconds.
 
-  Alternative approach is to do sync less often, for example each time `save_timestamp` is called we
-  store `ts + 100` on disk and do no sync writes until we get new ts that is bigger than what is
-  already stored in file. This way we can ensure than after recovery there will be no timestamps
-  reused instead of just hoping for slow recovery. Even if recovery is extremely fast there will be
-  no id reuse, but might be some time where timestamp in id is running ahead of system time (by
-  100ms in this example).
+  We need to perform round *up* so that we ensure that after restart we are not going to get timestamps that
+  could have been used before.
+
+  We might further improve performance by performing timestamp comparison in this module instead of doing
+  `GenSever.call` to `PersistantStorage`.
   """
   @spec timestamp() :: non_neg_integer
   def timestamp do
