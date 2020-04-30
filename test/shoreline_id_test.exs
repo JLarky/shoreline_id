@@ -53,7 +53,7 @@ defmodule GlobalIdTest do
     assert new_id !== id
     assert new_id !== overflow_id
     assert new_id !== overflow_id2
-    assert {1_584_304_105_131, 1023, 1} === GlobalId.inspect_id(new_id)
+    assert {1_584_304_105_201, 1023, 1} === GlobalId.inspect_id(new_id)
   end
 
   test "test id 0" do
