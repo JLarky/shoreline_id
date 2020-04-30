@@ -4,3 +4,8 @@ See [problem](https://app.trinethire.com/companies/22646-shoreline-software-inc/
 
     $ iex -S mix
     iex(1)> h GlobalId
+
+Run tests
+
+    mix test
+    mix test.watch
