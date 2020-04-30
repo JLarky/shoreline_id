@@ -182,10 +182,6 @@ defmodule GlobalId do
     PersistantStorage.save_timestamp(round_up_ts)
   end
 
-  defp round_up(ts, 0) do
-    ts
-  end
-
   defp round_up(ts, step) do
     ts - Kernel.rem(ts, step) + step
   end
