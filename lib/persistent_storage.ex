@@ -28,7 +28,7 @@ defmodule PersistantStorage do
   end
 
   @doc """
-  Reads value from disk, returning `nil` if no value was stored
+  Saves value to disk
   """
   @spec save_timestamp(non_neg_integer) :: :ok
   def save_timestamp(ts) do
