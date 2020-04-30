@@ -17,7 +17,7 @@ defmodule GlobalIdTest do
   test "calling get_id too many times in one millisecond will overflow counter so ts will increase instead" do
     {:ok, _pid} = GlobalId.start_link()
     id = GlobalId.get_id()
-    for _ <- 1..2047, do: GlobalId.get_id()
+    for _ <- 1..4095, do: GlobalId.get_id()
     assert {1_584_304_105_123, 1023, 0} === GlobalId.inspect_id(id)
     overflow_id = GlobalId.get_id()
     assert overflow_id !== id
@@ -31,7 +31,7 @@ defmodule GlobalIdTest do
   test "that counter overflow is safe on GenServer restart" do
     {:ok, _pid} = GlobalId.start_link()
     id = GlobalId.get_id()
-    for _ <- 1..2047, do: GlobalId.get_id()
+    for _ <- 1..4095, do: GlobalId.get_id()
     _overflow_id = GlobalId.get_id()
     GenServer.stop(GlobalId)
     {:ok, _pid} = GlobalId.start_link()
@@ -41,7 +41,7 @@ defmodule GlobalIdTest do
   test "that on GenServer restart proper last_ts is stored" do
     {:ok, _pid} = GlobalId.start_link()
     id = GlobalId.get_id()
-    for _ <- 1..2047, do: GlobalId.get_id()
+    for _ <- 1..4095, do: GlobalId.get_id()
     assert {1_584_304_105_123, 1023, 0} === GlobalId.inspect_id(id)
     overflow_id = GlobalId.get_id()
     assert {1_584_304_105_124, 1023, 0} === GlobalId.inspect_id(overflow_id)
