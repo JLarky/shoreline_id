@@ -39,7 +39,7 @@ defmodule PersistantStorage do
   @spec init(nil) :: {:ok, map()}
   def init(_) do
     fd = File.open!(@db_path, [:read, :write, :binary])
-    {:ok, %{fd: fd}}
+    {:ok, %{fd: fd, last_ts: nil}}
   end
 
   @impl true
@@ -53,14 +53,18 @@ defmodule PersistantStorage do
           0
       end
 
-    {:reply, ts, state}
+    {:reply, ts, %{state | last_ts: ts}}
   end
 
   @impl true
+  def handle_call({:save, ts}, _from, %{last_ts: ts} = state) do
+    {:reply, :ok, state}
+  end
+
   def handle_call({:save, ts}, _from, %{fd: fd} = state) do
     :ok = :file.pwrite(fd, 0, <<ts::64>>)
     # see notes about `:file.sync` in `h GlobalId.timestamp`
     :ok = :file.sync(fd)
-    {:reply, :ok, state}
+    {:reply, :ok, %{state | last_ts: ts}}
   end
 end
