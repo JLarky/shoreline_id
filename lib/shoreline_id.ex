@@ -8,9 +8,9 @@ defmodule GlobalId do
 
       iex> {:ok, _} = GlobalId.start_link()
       iex> GlobalId.get_id()
-      6645053045335916544
+      6645053045335914496
       iex> GlobalId.get_id()
-      6645053045335916545
+      6645053045335914497
 
   Generating 10,000 unique ids
 
@@ -149,7 +149,7 @@ defmodule GlobalId do
   """
   @spec node_id() :: non_neg_integer
   def node_id do
-    1024
+    1023
   end
 
   @doc """

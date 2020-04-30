@@ -10,22 +10,22 @@ defmodule GlobalIdTest do
 
   test "calling multiple times increases counter" do
     {:ok, _pid} = GlobalId.start_link()
-    assert GlobalId.get_id() == 6_645_053_045_335_916_544
-    assert GlobalId.get_id() == 6_645_053_045_335_916_545
+    assert GlobalId.get_id() == 6_645_053_045_335_914_496
+    assert GlobalId.get_id() == 6_645_053_045_335_914_497
   end
 
   test "calling get_id too many times in one millisecond will overflow counter so ts will increase instead" do
     {:ok, _pid} = GlobalId.start_link()
     id = GlobalId.get_id()
     for _ <- 1..2047, do: GlobalId.get_id()
-    assert {1_584_304_105_123, 1024, 0} === GlobalId.inspect_id(id)
+    assert {1_584_304_105_123, 1023, 0} === GlobalId.inspect_id(id)
     overflow_id = GlobalId.get_id()
     assert overflow_id !== id
-    assert {1_584_304_105_124, 1024, 0} === GlobalId.inspect_id(overflow_id)
+    assert {1_584_304_105_124, 1023, 0} === GlobalId.inspect_id(overflow_id)
     overflow_id = GlobalId.get_id()
-    assert {1_584_304_105_124, 1024, 1} === GlobalId.inspect_id(overflow_id)
+    assert {1_584_304_105_124, 1023, 1} === GlobalId.inspect_id(overflow_id)
     overflow_id = GlobalId.get_id()
-    assert {1_584_304_105_124, 1024, 2} === GlobalId.inspect_id(overflow_id)
+    assert {1_584_304_105_124, 1023, 2} === GlobalId.inspect_id(overflow_id)
   end
 
   test "that counter overflow is safe on GenServer restart" do
@@ -42,18 +42,18 @@ defmodule GlobalIdTest do
     {:ok, _pid} = GlobalId.start_link()
     id = GlobalId.get_id()
     for _ <- 1..2047, do: GlobalId.get_id()
-    assert {1_584_304_105_123, 1024, 0} === GlobalId.inspect_id(id)
+    assert {1_584_304_105_123, 1023, 0} === GlobalId.inspect_id(id)
     overflow_id = GlobalId.get_id()
-    assert {1_584_304_105_124, 1024, 0} === GlobalId.inspect_id(overflow_id)
+    assert {1_584_304_105_124, 1023, 0} === GlobalId.inspect_id(overflow_id)
     overflow_id2 = GlobalId.get_id()
-    assert {1_584_304_105_124, 1024, 1} === GlobalId.inspect_id(overflow_id2)
+    assert {1_584_304_105_124, 1023, 1} === GlobalId.inspect_id(overflow_id2)
     GenServer.stop(GlobalId)
     {:ok, _pid} = GlobalId.start_link()
     new_id = GlobalId.get_id()
     assert new_id !== id
     assert new_id !== overflow_id
     assert new_id !== overflow_id2
-    assert {1_584_304_105_125, 1024, 1} === GlobalId.inspect_id(new_id)
+    assert {1_584_304_105_125, 1023, 1} === GlobalId.inspect_id(new_id)
   end
 
   test "test id 0" do
