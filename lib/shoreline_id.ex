@@ -177,7 +177,7 @@ defmodule GlobalId do
   end
 
   defp save_timestamp(ts) do
-    round_up_ts = round_up(ts, 0)
+    round_up_ts = round_up(ts, 10)
     PersistantStorage.save_timestamp(round_up_ts)
   end
 
